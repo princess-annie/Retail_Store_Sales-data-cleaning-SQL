@@ -1,1 +1,1 @@
-# Retail_Store_Sales-data-cleaning-SQL
+# A Practical demonstration of data preparation, cleaning, validation and data quality assesment using SQL
