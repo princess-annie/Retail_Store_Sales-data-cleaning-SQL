@@ -2,9 +2,10 @@
 -- Inspect the table structure to know the column data type (11 Columns)
 DESCRIBE retail_transactions;
 
--- Total records in this dataset (12,575 records)
+-- Total records in this dataset
 SELECT COUNT(*) AS total_rows 
 FROM retail_transactions;
+--Results: 12,575 records
 
 -- View sample data to understand it
 Select * from retail_transactions LIMIT 50;
@@ -26,7 +27,7 @@ SELECT
     COUNT(DISTINCT location) AS unique_locations
 FROM retail_transactions;
 
--- Results
+-- Results:
 -- had 12,575 unique transaction id
 -- had 25 unique customers id
 -- had 8 unique categories
@@ -37,10 +38,17 @@ FROM retail_transactions;
 -- Summary Staistics for numeric column
 SELECT 
     -- Price per unit 
-    AVG(price_per_unit) AS avg_unit_price, (22.234)
-    MIN(price_per_unit) AS min_unit_price, (0.00)
-    MAX(price_per_unit) AS max_unit_price, (41.00)
-    SUM(price_per_unit) AS total_price, (279596.50)
+    AVG(price_per_unit) AS avg_unit_price, 
+    MIN(price_per_unit) AS min_unit_price,
+    MAX(price_per_unit) AS max_unit_price,
+    SUM(price_per_unit) AS total_price,
+    
+    -- Results:
+    -- avg_unit_price (22.234)
+    -- min_unit_price, (0.00)
+    -- max_unit_price, (41.00)
+    -- total_price, (279596.50)
+    
     
     -- Quantity
     AVG(quantity) AS avg_items_per_transaction, (5.2705)
@@ -48,11 +56,24 @@ SELECT
     MAX(quantity) AS max_quantity, (10)
     SUM(quantity) AS total_items_sold, (66276)
     
+    -- Results:
+    --avg_items_per_transaction, (5.2705)
+    --min_quantity, (0)
+    --max_quantity, (10)
+    --total_items_sold, (66276)
+    
     -- Total spent
    AVG(total_spent) AS avg_transaction_value, (123.425)
    MIN(total_spent) AS min_transaction, (0.00)
    MAX(total_spent) AS max_transaction, (410.00)
    SUM(total_spent) AS total_revenue (1552071.00)
+
+    --Results
+    --avg_transaction_value, (123.425)
+    --min_transaction, (0.00)
+    --max_transaction, (410.00)
+    --total_revenue (1552071.00)
+    
 FROM retail_transactions;
 
 -- Thirdly, we will identify data quality issues
@@ -71,6 +92,12 @@ SELECT
     SUM(CASE WHEN discount_applied IS NULL OR discount_applied = '' THEN 1 ELSE 0 END) AS missing_discount_applied
 FROM retail_transactions;
 
+-- Results:
+-- 609 missing items
+-- 609 missing prices
+-- 604 missing quantities
+-- 604 missing total_spent values
+
 -- Check for duplicates
 SELECT 
     COUNT(*) - COUNT(DISTINCT transaction_id, customer_id, category, item, 
@@ -78,7 +105,7 @@ SELECT
                      location, transaction_date, discount_applied) AS total_duplicate_rows
 FROM retail_transactions;
 
---Results
+--Results:
 -- no duplicates was found
 
 -- Check for inconsistencies
@@ -95,11 +122,13 @@ SET
 UPDATE retail_transactions
 SET discount_applied = 'True' 
 WHERE discount_applied IN ('true', 'TRUE', 'T', 'Yes', 'yes', '1'); 
+-- Results
 --(4,219 were replaced)
 
 UPDATE retail_transactions
 SET discount_applied = 'False'
 WHERE discount_applied IN ('false', 'FALSE', 'F', 'No', 'no', '0'); 
+-- Results
 --(8,356 were replaced)
 
 -- how to handle missing values for each column
@@ -107,27 +136,40 @@ WHERE discount_applied IN ('false', 'FALSE', 'F', 'No', 'no', '0');
 UPDATE retail_transactions
 SET item = 'Unknown'
 WHERE item IS NULL OR item = '';
--- 609 columns were replaced
 
 -- for price_per_unit, quantity and total_spent we replace with Null
 UPDATE retail_transactions
 SET price_per_unit = 'NULL'
 WHERE price_per_unit = '';
--- 609 columns replaced
 
 UPDATE retail_transactions
 SET quantity = 'NULL'
 WHERE quantity = '';
--- 604 columns replaced
 
 UPDATE retail_transactions
 SET total_spent = 'NULL'
 WHERE total_spent = '';
--- 604 columns replaced
 
 -- for discount_applied, will replace with false beccause empty string might mean no discount was applied
 UPDATE retail_transactions
 SET discount_applied = 'False'
 WHERE discount_applied = '';
+
+-- Add Derived/Calculated Columns
+-- Add month abbreviation
+ALTER TABLE retail_transactions
+ADD COLUMN month_abbr VARCHAR(3);
+
+UPDATE retail_transactions
+SET month_abbr = DATE_FORMAT(transaction_date, '%b');
+
+-- Add year
+ALTER TABLE retail_transactions
+ADD COLUMN year INT;
+
+UPDATE retail_transactions
+SET year = YEAR(transaction_date);
+
+
 
 
