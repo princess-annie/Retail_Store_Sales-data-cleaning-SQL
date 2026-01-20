@@ -135,7 +135,7 @@ WHERE discount_applied IN ('false', 'FALSE', 'F', 'No', 'no', '0');
 -- for item, we replace the empty string with Unknown
 UPDATE retail_transactions
 SET item = 'Unknown'
-WHERE item IS NULL OR item = '';
+WHERE item = '';
 
 -- for price_per_unit, quantity and total_spent we replace with Null
 UPDATE retail_transactions
